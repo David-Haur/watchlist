@@ -1,0 +1,6 @@
+# ignore files
+*.pyc
+# 忽略所有以~结尾的文件（这种文件通常被许多编辑器标记为临时文件）
+*~
+__pycache__
+.DS_Store
