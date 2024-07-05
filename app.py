@@ -2,14 +2,26 @@ from flask import Flask, render_template
 from flask import url_for
 from markupsafe import escape
 from faker import Faker
+from flask_sqlalchemy import SQLAlchemy
+import os
 
 app = Flask(__name__) # 实例化一个flask对象
 
 
-# 当访问根地址时，自动会调用该函数，并将返回值返回给视窗函数。
-# @app.route('/')
-# def hello():
-#     return '''<h1>Welcome to my watchlist</h1><img src="http://helloflask.com/totoro.gif">'''
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path, 'data.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app) # 实例化一个数据库对象
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+
+
+class Movie(db.Model):  # 表名将会是 movie
+    id = db.Column(db.Integer, primary_key=True)  # 主键
+    title = db.Column(db.String(60))  # 电影标题
+    year = db.Column(db.String(4))  # 电影年份
 
 
 @app.route('/pic')
