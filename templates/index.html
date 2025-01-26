@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>{{ name }}'s Watchlist</title>
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>{{ name }}'s Movie List</title>
+    {# Jinja2中内置了Flask函数，所以对于url_for，不需要从flask调，直接用就行了 #}
+    <link rel="icon" href="{{ url_for('static', filename='./images/favicon-32x32.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='./style.css') }}" type="text/css">
 </head>
 <body>
     <h2>
-        <img class="study" src="{{ url_for('static', filename='images/study.png') }}" alt="study">
-        {{ name }}'s Watchlist
+        <img class="jojo" alt="jojo_pic" src="{{ url_for('static', filename='./images/jojo.png') }}">
+        {{ name }}'s Movie List
     </h2>
-    {# 使用 length 过滤器获取 movies 变量的长度 #}
-    <p>{{ movies|length }} Titles</p>
+    <p>
+        {{ movies|length }} Titles
+    </p>
     <ul class="movie-list">
-        {% for movie in movies %}  {# 迭代 movies 变量 #}
-        <li>{{ movie.title }} - {{ movie.year }}</li>  {# 等同于 movie['title'] #}
-        {% endfor %}  {# 使用 endfor 标签结束 for 语句 #}
+        {% for movie in movies %}
+        <li>
+            {{ movie.title }} - {{ movie.year }}
+        </li>
+        {% endfor %}
     </ul>
-    <img class="cover" src="{{ url_for('static', filename='images/cover.png') }}" alt="cover">
+    <img class="jotalang" alt="jojo_2" src="{{ url_for('static', filename='./images/jotalang.png') }}">
     <footer>
-        <small>&copy; 2018 <a href="http://helloflask.com/book/3">hello F~la~sk</a></small>
+        <small>&copy; 2024 <a href="https://baidu.com">This is baidutest</a> </small>
     </footer>
 </body>
+
 </html>
+
+

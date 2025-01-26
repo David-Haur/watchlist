@@ -5,12 +5,12 @@ body {
     font-family: helvetica, Arial, sans-serif;
 }
 
-.study {
+.jotalang {
     width: 300px;
 }
 
-.cover {
-    width: 500px;
+.jojo {
+    width: 200px;
 }
 
 .movie-list {
@@ -23,7 +23,7 @@ body {
 .movie-list li {
     padding: 12px 24px;
     border-bottom: 1px solid #ddd;
-    color: #3B666B;
+    color: #3f7479;
 }
 
 .movie-list li:last-child {
@@ -31,5 +31,5 @@ body {
 }
 
 .movie-list li:hover {
-    background-color: #f8f9fa;
+    background-color: #e4e4f0;
 }
