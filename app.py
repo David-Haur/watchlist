@@ -1,13 +1,51 @@
 import flask
 from markupsafe import escape
 # 利用escape进行转义
-import flask_sqlalchemy as fs   # 操作数据库的类
+import flask_sqlalchemy as fs   # 包含操作数据库的类的模块
 import os
+import click
+from faker import Faker
 
 
 app = flask.Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path, 'data.db')
-db = fs.SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path, 'data.db')   # 配置SQL和数据库管理器
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False    # 关闭对模型修改的监控
+db = fs.SQLAlchemy(app)  # 利用SQLAlchemy类，操作数据库
+
+
+# 创建表（用户名和电影）——利用类对象，继承自SQLAlchemy类，里面的属性就是表字段
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+
+
+class Movie(db.Model):  # 表名将会是 movie（自动生成，小写处理）
+    id = db.Column(db.Integer, primary_key=True)  # 主键
+    title = db.Column(db.String(60))  # 电影标题
+    year = db.Column(db.String(4))  # 电影年份
+
+
+# 在Flask中把对应函数名注册为flask命令（param_decls是补充参数）
+@app.cli.command()
+@click.option('--drop', is_flag=True, help='Create after drop')
+def initdb(drop):
+    if drop:
+        db.drop_all()
+    db.create_all()
+    click.echo('Initialized database')
+
+
+@app.cli.command()
+def forge():
+    db.create_all()
+    fk = Faker()    # faker对象
+    usr = User(name=fk.name())
+    db.session.add(usr)
+    movie_num = 10
+    for _ in range(movie_num):
+        movie = Movie(title=fk.street_name(), year=fk.year())
+        db.session.add(movie)
+    db.session.commit()
 
 
 # 这里采用路径传参，在用户输入/user/xxxx时就把xxxx传给name.url/<参数名>，然后再视图函数中接收参数
@@ -35,20 +73,22 @@ def hello():
 
 @app.route('/index')
 def index():
-    name = 'JiLong'
-    movies = [
-        {'title': 'My Neighbor Totoro', 'year': '1988'},
-        {'title': 'Dead Poets Society', 'year': '1989'},
-        {'title': 'A Perfect World', 'year': '1993'},
-        {'title': 'Leon', 'year': '1994'},
-        {'title': 'Mahjong', 'year': '1996'},
-        {'title': 'Swallowtail Butterfly', 'year': '1996'},
-        {'title': 'King of Comedy', 'year': '1999'},
-        {'title': 'Devils on the Doorstep', 'year': '1999'},
-        {'title': 'WALL-E', 'year': '2008'},
-        {'title': 'The Pork of Music', 'year': '2012'},
-        {'title': 'lalala', 'year': '2024'}
-    ]
+    # name = 'JiLong'
+    name = User.query.first().name
+    # movies = [
+    #     {'title': 'My Neighbor Totoro', 'year': '1988'},
+    #     {'title': 'Dead Poets Society', 'year': '1989'},
+    #     {'title': 'A Perfect World', 'year': '1993'},
+    #     {'title': 'Leon', 'year': '1994'},
+    #     {'title': 'Mahjong', 'year': '1996'},
+    #     {'title': 'Swallowtail Butterfly', 'year': '1996'},
+    #     {'title': 'King of Comedy', 'year': '1999'},
+    #     {'title': 'Devils on the Doorstep', 'year': '1999'},
+    #     {'title': 'WALL-E', 'year': '2008'},
+    #     {'title': 'The Pork of Music', 'year': '2012'},
+    #     {'title': 'lalala', 'year': '2024'}
+    # ]
+    movies = Movie.query.all()
     return flask.render_template('index.html', name=name, movies=movies)
 
 
@@ -67,7 +107,3 @@ def test_url_for():
 def show_pic():
     # 对于url_for()，如果endpoint='static'，另一个参数是filename，那么它会从static文件夹内寻找静态文件
     return f"<img src={flask.url_for(endpoint='static', filename='/images/jojo.png')}>"
-
-
-if __name__ == '__main__':
-    print('sqlite:////' + os.path.join(app.root_path, 'data.db'))
